@@ -125,7 +125,7 @@ FAQ_PATTERNS = [
     
     # Service areas
     (["area", "areas", "suburb", "location", "where", "clyde", "melbourne", "service area"],
-     "We service Clyde North and nearby areas in Melbourne's south-east including Cranbourne, Berwick, Narre Warren, Pakenham, and surrounds. Are you in our service area?"),
+     "We service the entire Greater Melbourne area! From the CBD to all outer suburbs - Clyde North, Cranbourne, Berwick, Pakenham, Werribee, you name it. Wherever you are in Melbourne, we can help. Are you in Greater Melbourne?"),
     
     # Availability
     (["available", "today", "urgent", "emergency", "asap", "quick"],
