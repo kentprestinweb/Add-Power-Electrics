@@ -258,8 +258,28 @@ async def chat(chat_message: ChatMessage):
     
     intent, intent_response = detect_intent(message)
     
+    # IMPORTANT: During lead collection, check if user is asking a question instead of answering
+    if state in ["collect_name", "collect_phone", "collect_suburb", "collect_job"]:
+        # If user asks a question during lead capture, answer it and remind them
+        if is_question(message):
+            # Handle common questions during lead capture
+            if intent == "faq" or intent == "diy_warning":
+                return ChatResponse(
+                    response=f"{intent_response}\n\n---\n\n📝 By the way, I was just collecting your details for a quote. Would you like to continue? Just tell me your **{'name' if state == 'collect_name' else 'phone number' if state == 'collect_phone' else 'suburb' if state == 'collect_suburb' else 'job description'}**."
+                )
+            elif any(word in message.lower() for word in ["how much", "cost", "price", "charge"]):
+                return ChatResponse(
+                    response="Great question! Pricing depends on the specific job - that's why we offer free quotes. Once I have your details, we can give you an accurate price.\n\n📝 What's your **" + ("name" if state == "collect_name" else "phone number" if state == "collect_phone" else "suburb" if state == "collect_suburb" else "job description") + "**?"
+                )
+    
     # State machine for lead collection
     if state == "collect_name":
+        # Validate it looks like a name
+        if not is_valid_name(message):
+            return ChatResponse(
+                response="I didn't quite catch that. Could you please tell me your name?",
+                action="collect_name"
+            )
         collected_data["name"] = message
         await update_conversation(session_id, "collect_phone", collected_data)
         return ChatResponse(
@@ -277,7 +297,7 @@ async def chat(chat_message: ChatMessage):
             )
         else:
             return ChatResponse(
-                response="Hmm, that doesn't look like a valid phone number. Could you please enter your Australian mobile or landline number?",
+                response="Hmm, that doesn't look like a valid phone number. Could you please enter your Australian mobile or landline number? (e.g., 0412 345 678)",
                 action="collect_phone"
             )
     
