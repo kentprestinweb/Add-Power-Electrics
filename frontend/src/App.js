@@ -445,6 +445,8 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState({ total_leads: 0, new_leads: 0, contacted: 0, booked: 0, completed: 0 });
   const [loading, setLoading] = useState(true);
   const [selectedLead, setSelectedLead] = useState(null);
+  const [emailPreview, setEmailPreview] = useState(null);
+  const [showEmailModal, setShowEmailModal] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -481,6 +483,26 @@ const AdminDashboard = () => {
       fetchData();
     } catch (error) {
       console.error('Failed to send SMS:', error);
+    }
+  };
+
+  const sendQuoteEmail = async (leadId) => {
+    try {
+      const response = await axios.post(`${API}/email/send-quote?lead_id=${leadId}`);
+      alert('Quote email sent successfully! (Simulated)');
+      fetchData();
+    } catch (error) {
+      console.error('Failed to send quote email:', error);
+    }
+  };
+
+  const previewEmail = async (leadId, type) => {
+    try {
+      const response = await axios.get(`${API}/email/preview/${leadId}`);
+      setEmailPreview({ ...response.data[type], type, leadId });
+      setShowEmailModal(true);
+    } catch (error) {
+      console.error('Failed to preview email:', error);
     }
   };
 
