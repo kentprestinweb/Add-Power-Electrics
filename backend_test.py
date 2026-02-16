@@ -126,7 +126,7 @@ class AddPowerElectricsChatbotTester:
             "POST",
             "chat",
             200,
-            data={"message": "I need a quote", "session_id": lead_session}
+            data={"message": "book a job", "session_id": lead_session}
         )
         
         if not success1 or "name" not in response1.get("response", "").lower():
