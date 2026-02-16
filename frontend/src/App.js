@@ -288,7 +288,7 @@ const LandingPage = () => {
                   <span className="text-[#FACC15]">Trusted Sparky</span>
                 </h2>
                 <p className="text-white/70 text-lg mb-8 max-w-lg">
-                  Professional electrical services for homes and businesses in Melbourne's south-east. Licensed, insured, and ready to help.
+                  Professional electrical services for homes and businesses across Greater Melbourne. Licensed, insured, and ready to help.
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <a 
