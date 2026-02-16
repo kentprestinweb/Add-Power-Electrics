@@ -110,8 +110,8 @@ FAQ_RESPONSES = {
         "Smoke alarm installation and testing is essential for safety! We install interconnected smoke alarms that comply with Australian regulations. Need your alarms checked?",
     
     # EV Chargers
-    "ev|electric vehicle|charger|tesla|car charger":
-        "EV charger installation is growing fast! We install home charging stations for all electric vehicles. What type of EV do you have?",
+    "ev|electric vehicle|charger|tesla|car charger|ev charger":
+        "EV charger installation is one of our growing specialties! We install home charging stations for Tesla, BYD, Hyundai, and all other electric vehicles. We can set up 7kW single-phase or 22kW three-phase chargers. What type of EV do you have, and do you know if you have single or three-phase power?",
     
     # TV & Data
     "tv|television|antenna|data|network|internet":
