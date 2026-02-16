@@ -228,6 +228,10 @@ def detect_intent(message: str) -> tuple:
     if any(n == message_lower for n in no_words):
         return ("negative", "No worries! Is there anything else I can help you with today?")
     
+    # Check for "Other" - prompt them to specify
+    if message_lower == "other" or message_lower == "other services" or message_lower == "something else":
+        return ("other_service", "No worries! Just type what electrical work you need and I'll help you out. Or if you'd like, I can grab your details and have someone call you back to discuss.")
+    
     # Check for "tell me more" or similar exploratory responses
     explore_words = ["tell me more", "more info", "what else", "other services", "what do you do", "services"]
     if any(e in message_lower for e in explore_words):
