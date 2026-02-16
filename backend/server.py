@@ -130,43 +130,6 @@ FAQ_PATTERNS = [
     (["help", "service", "work", "job", "need", "looking", "install"],
      "We offer a full range of residential and commercial electrical services! This includes powerpoints, lighting, switchboards, smoke alarms, ceiling fans, EV chargers, and more. What can we help you with today?"),
 ]
-    
-    # Switchboard
-    "switchboard|fuse box|safety switch|rcd|circuit breaker":
-        "Switchboard upgrades are one of our specialties! We can upgrade old fuse boxes to modern safety switch boards, add circuits, or install new RCDs. Is your switchboard giving you trouble?",
-    
-    # Lights & Downlights
-    "light|lights|downlight|led|lighting|lamp":
-        "We're experts in lighting! LED downlights, pendant lights, outdoor security lighting, sensor lights - you name it. Looking to upgrade to energy-efficient LEDs?",
-    
-    # Ceiling Fans
-    "ceiling fan|fan|cooling":
-        "Ceiling fan installation is a popular service! We can install new fans or replace existing ones. Do you have existing wiring or need new cabling run?",
-    
-    # Smoke Alarms
-    "smoke alarm|smoke detector|fire alarm|safety":
-        "Smoke alarm installation and testing is essential for safety! We install interconnected smoke alarms that comply with Australian regulations. Need your alarms checked?",
-    
-    # EV Chargers
-    "ev|electric vehicle|charger|tesla|car charger|ev charger":
-        "EV charger installation is one of our growing specialties! We install home charging stations for Tesla, BYD, Hyundai, and all other electric vehicles. We can set up 7kW single-phase or 22kW three-phase chargers. What type of EV do you have, and do you know if you have single or three-phase power?",
-    
-    # TV & Data
-    "tv|television|antenna|data|network|internet":
-        "Yes! We do TV wall mounting and antenna installation with attention to detail - clean cable management included. Where would you like your TV mounted?",
-    
-    # Power Issues
-    "tripping|trip|power out|no power|blackout|fault":
-        "Power tripping can be caused by faulty appliances, overloaded circuits, or safety switch issues. This needs attention! Can I grab your details so we can help diagnose the issue?",
-    
-    # Hot Water
-    "hot water|water heater":
-        "We can help with hot water system electrical connections and troubleshooting. Is your hot water system electric or do you need electrical work for a new installation?",
-    
-    # General inquiry
-    "help|service|work|job|need|looking":
-        "We offer a full range of residential and commercial electrical services! This includes powerpoints, lighting, switchboards, smoke alarms, ceiling fans, EV chargers, and more. What can we help you with today?",
-}
 
 # ============== CHATBOT LOGIC ==============
 
