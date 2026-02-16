@@ -265,6 +265,9 @@ async def chat(chat_message: ChatMessage):
         lead_dict = lead.model_dump()
         await db.leads.insert_one(lead_dict.copy())  # Use copy to avoid _id mutation
         
+        # Auto-send confirmation email
+        await send_confirmation_email(lead_dict)
+        
         # Reset conversation
         await update_conversation(session_id, "completed", {})
         
@@ -280,7 +283,7 @@ async def chat(chat_message: ChatMessage):
         }
         
         return ChatResponse(
-            response=f"Awesome! ✅ Thanks {collected_data.get('name', '')}! I've passed your details to the team at Add Power Electrics.\n\n📋 **Your Request:**\n• Name: {collected_data.get('name')}\n• Phone: {collected_data.get('phone')}\n• Suburb: {collected_data.get('suburb')}\n• Job: {collected_data.get('job_description')}\n\nWe'll be in touch shortly! Is there anything else I can help with?",
+            response=f"Awesome! ✅ Thanks {collected_data.get('name', '')}! I've passed your details to the team at Add Power Electrics and sent you a confirmation.\n\n📋 **Your Request:**\n• Name: {collected_data.get('name')}\n• Phone: {collected_data.get('phone')}\n• Suburb: {collected_data.get('suburb')}\n• Job: {collected_data.get('job_description')}\n\n📧 A confirmation has been sent to you!\n\nWe'll be in touch shortly! Is there anything else I can help with?",
             action="lead_saved",
             lead_data=clean_lead_data
         )
