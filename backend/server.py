@@ -299,11 +299,15 @@ async def get_leads():
 @api_router.patch("/leads/{lead_id}/status")
 async def update_lead_status(lead_id: str, status: str):
     """Update lead status"""
+    valid_statuses = ["new", "contacted", "booked", "completed"]
+    if status not in valid_statuses:
+        raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {valid_statuses}")
+    
     result = await db.leads.update_one(
         {"id": lead_id},
         {"$set": {"status": status}}
     )
-    if result.modified_count == 0:
+    if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Lead not found")
     return {"message": "Status updated", "status": status}
 
