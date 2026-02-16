@@ -1,15 +1,15 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
-from typing import List
+from pydantic import BaseModel, Field
+from typing import List, Optional
 import uuid
 from datetime import datetime, timezone
-
+import re
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -19,54 +19,341 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# Create the main app without a prefix
 app = FastAPI()
-
-# Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
-    
+# ============== MODELS ==============
+
+class Lead(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    name: str
+    phone: str
+    suburb: str
+    job_description: str
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    status: str = "new"  # new, contacted, booked, completed
+    sms_sent: bool = False
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+class LeadCreate(BaseModel):
+    name: str
+    phone: str
+    suburb: str
+    job_description: str
 
-# Add your routes to the router instead of directly to app
+class ChatMessage(BaseModel):
+    message: str
+    session_id: str
+
+class ChatResponse(BaseModel):
+    response: str
+    action: Optional[str] = None  # None, "collect_name", "collect_phone", "collect_suburb", "collect_job", "lead_saved"
+    lead_data: Optional[dict] = None
+
+class ConversationState(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    session_id: str
+    state: str = "greeting"  # greeting, faq, collect_name, collect_phone, collect_suburb, collect_job, completed
+    collected_data: dict = Field(default_factory=dict)
+    updated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+# ============== FAQ DATABASE ==============
+
+BUSINESS_INFO = {
+    "name": "Add Power Electrics",
+    "owner": "The team at Add Power Electrics",
+    "phone": "0448 195 614",
+    "rating": "5.0 stars (37 reviews)",
+    "areas": "Clyde North and nearby areas in Melbourne's south-east",
+    "hours": "9 AM - 5 PM, Monday to Friday",
+    "emergency": "Yes, we offer emergency electrical services"
+}
+
+FAQ_RESPONSES = {
+    # Service areas
+    "area|areas|service|suburb|location|where|clyde|melbourne": 
+        f"We service Clyde North and nearby areas in Melbourne's south-east including Cranbourne, Berwick, Narre Warren, Pakenham, and surrounds. Are you in our service area?",
+    
+    # Availability
+    "available|today|urgent|emergency|asap|quick":
+        "We try to accommodate urgent jobs where possible! For emergencies, we prioritise safety issues. Let me grab your details and we'll get back to you ASAP with availability.",
+    
+    # Quotes
+    "quote|cost|price|how much|pricing|rates|charge":
+        "We offer free quotes for most jobs! Pricing depends on the scope of work. Would you like us to come out and provide a no-obligation quote?",
+    
+    # License & Insurance
+    "license|licensed|insured|insurance|qualified|certified":
+        "Absolutely! Add Power Electrics is fully licensed and insured. All our work meets Australian electrical standards and we provide certificates of compliance.",
+    
+    # Powerpoints
+    "powerpoint|power point|outlet|socket|gpo":
+        "Yes, we install powerpoints! Whether you need additional outlets, USB powerpoints, or outdoor weatherproof GPOs, we've got you covered. Where do you need them installed?",
+    
+    # Switchboard
+    "switchboard|fuse box|safety switch|rcd|circuit breaker":
+        "Switchboard upgrades are one of our specialties! We can upgrade old fuse boxes to modern safety switch boards, add circuits, or install new RCDs. Is your switchboard giving you trouble?",
+    
+    # Lights & Downlights
+    "light|lights|downlight|led|lighting|lamp":
+        "We're experts in lighting! LED downlights, pendant lights, outdoor security lighting, sensor lights - you name it. Looking to upgrade to energy-efficient LEDs?",
+    
+    # Ceiling Fans
+    "ceiling fan|fan|cooling":
+        "Ceiling fan installation is a popular service! We can install new fans or replace existing ones. Do you have existing wiring or need new cabling run?",
+    
+    # Smoke Alarms
+    "smoke alarm|smoke detector|fire alarm|safety":
+        "Smoke alarm installation and testing is essential for safety! We install interconnected smoke alarms that comply with Australian regulations. Need your alarms checked?",
+    
+    # EV Chargers
+    "ev|electric vehicle|charger|tesla|car charger":
+        "EV charger installation is growing fast! We install home charging stations for all electric vehicles. What type of EV do you have?",
+    
+    # TV & Data
+    "tv|television|antenna|data|network|internet":
+        "Yes! We do TV wall mounting and antenna installation with attention to detail - clean cable management included. Where would you like your TV mounted?",
+    
+    # Power Issues
+    "tripping|trip|power out|no power|blackout|fault":
+        "Power tripping can be caused by faulty appliances, overloaded circuits, or safety switch issues. This needs attention! Can I grab your details so we can help diagnose the issue?",
+    
+    # Hot Water
+    "hot water|water heater":
+        "We can help with hot water system electrical connections and troubleshooting. Is your hot water system electric or do you need electrical work for a new installation?",
+    
+    # General inquiry
+    "help|service|work|job|need|looking":
+        "We offer a full range of residential and commercial electrical services! This includes powerpoints, lighting, switchboards, smoke alarms, ceiling fans, EV chargers, and more. What can we help you with today?",
+}
+
+# ============== CHATBOT LOGIC ==============
+
+def detect_intent(message: str) -> tuple:
+    """Detect user intent from message and return (intent_type, response)"""
+    message_lower = message.lower().strip()
+    
+    # Check for greetings
+    greetings = ["hi", "hello", "hey", "g'day", "gday", "good morning", "good afternoon"]
+    if any(g in message_lower for g in greetings):
+        return ("greeting", f"G'day! 👋 Welcome to Add Power Electrics - your trusted local sparky in Clyde North with a 5-star rating! How can I help you today? I can answer questions about our services or help you book a job.")
+    
+    # Check for booking/quote intent
+    booking_words = ["book", "appointment", "schedule", "come out", "visit", "call me", "contact"]
+    if any(b in message_lower for b in booking_words):
+        return ("start_lead", "Great! I'd love to help you book a service. Let me grab a few details so we can get back to you quickly. What's your name?")
+    
+    # Check FAQ keywords
+    for keywords, response in FAQ_RESPONSES.items():
+        if any(kw in message_lower for kw in keywords.split("|")):
+            return ("faq", response + "\n\nWould you like to book a job or get a free quote? I can grab your details!")
+    
+    # Check for yes/affirmative responses
+    yes_words = ["yes", "yeah", "yep", "sure", "ok", "okay", "please", "definitely", "absolutely"]
+    if any(y == message_lower or message_lower.startswith(y + " ") or message_lower.endswith(" " + y) for y in yes_words):
+        return ("affirmative", None)  # Will be handled based on context
+    
+    # Check for no/negative responses
+    no_words = ["no", "nah", "not", "don't", "nope"]
+    if any(n == message_lower for n in no_words):
+        return ("negative", "No worries! Is there anything else I can help you with today?")
+    
+    # Default response
+    return ("unknown", "I'm here to help with electrical questions! You can ask about our services like powerpoints, lighting, switchboards, smoke alarms, EV chargers, and more. Or if you're ready, I can help you book a job!")
+
+async def get_or_create_conversation(session_id: str) -> dict:
+    """Get or create a conversation state"""
+    conv = await db.conversations.find_one({"session_id": session_id}, {"_id": 0})
+    if not conv:
+        conv = ConversationState(session_id=session_id).model_dump()
+        await db.conversations.insert_one(conv)
+    return conv
+
+async def update_conversation(session_id: str, state: str, collected_data: dict):
+    """Update conversation state"""
+    await db.conversations.update_one(
+        {"session_id": session_id},
+        {"$set": {
+            "state": state,
+            "collected_data": collected_data,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+
+def validate_phone(phone: str) -> bool:
+    """Validate Australian phone number"""
+    cleaned = re.sub(r'[\s\-\(\)]', '', phone)
+    return bool(re.match(r'^(\+?61|0)?4\d{8}$', cleaned) or re.match(r'^(\+?61|0)?[2-9]\d{7,8}$', cleaned))
+
+# ============== API ROUTES ==============
+
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Add Power Electrics Chatbot API", "status": "online"}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
+@api_router.post("/chat", response_model=ChatResponse)
+async def chat(chat_message: ChatMessage):
+    """Process chat message and return response"""
+    session_id = chat_message.session_id
+    message = chat_message.message.strip()
     
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
+    # Get conversation state
+    conv = await get_or_create_conversation(session_id)
+    state = conv.get("state", "greeting")
+    collected_data = conv.get("collected_data", {})
     
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
+    intent, intent_response = detect_intent(message)
+    
+    # State machine for lead collection
+    if state == "collect_name":
+        collected_data["name"] = message
+        await update_conversation(session_id, "collect_phone", collected_data)
+        return ChatResponse(
+            response=f"Thanks {message}! 📱 What's the best phone number to reach you on?",
+            action="collect_phone"
+        )
+    
+    elif state == "collect_phone":
+        if validate_phone(message):
+            collected_data["phone"] = message
+            await update_conversation(session_id, "collect_suburb", collected_data)
+            return ChatResponse(
+                response="Perfect! 📍 What suburb are you located in?",
+                action="collect_suburb"
+            )
+        else:
+            return ChatResponse(
+                response="Hmm, that doesn't look like a valid phone number. Could you please enter your Australian mobile or landline number?",
+                action="collect_phone"
+            )
+    
+    elif state == "collect_suburb":
+        collected_data["suburb"] = message
+        await update_conversation(session_id, "collect_job", collected_data)
+        return ChatResponse(
+            response="Great! 🔧 Now, briefly describe the electrical work you need done:",
+            action="collect_job"
+        )
+    
+    elif state == "collect_job":
+        collected_data["job_description"] = message
+        
+        # Save the lead
+        lead = Lead(
+            name=collected_data.get("name", ""),
+            phone=collected_data.get("phone", ""),
+            suburb=collected_data.get("suburb", ""),
+            job_description=collected_data.get("job_description", "")
+        )
+        lead_dict = lead.model_dump()
+        await db.leads.insert_one(lead_dict)
+        
+        # Reset conversation
+        await update_conversation(session_id, "completed", {})
+        
+        return ChatResponse(
+            response=f"Awesome! ✅ Thanks {collected_data.get('name', '')}! I've passed your details to the team at Add Power Electrics.\n\n📋 **Your Request:**\n• Name: {collected_data.get('name')}\n• Phone: {collected_data.get('phone')}\n• Suburb: {collected_data.get('suburb')}\n• Job: {collected_data.get('job_description')}\n\nWe'll be in touch shortly! Is there anything else I can help with?",
+            action="lead_saved",
+            lead_data=lead_dict
+        )
+    
+    # Handle intents based on current state
+    if intent == "greeting":
+        await update_conversation(session_id, "greeting", {})
+        return ChatResponse(response=intent_response)
+    
+    elif intent == "start_lead" or (intent == "affirmative" and state in ["greeting", "faq", "completed"]):
+        await update_conversation(session_id, "collect_name", {})
+        return ChatResponse(
+            response="Great! I'd love to help you book a service. Let me grab a few details so we can get back to you quickly. 👤 What's your name?",
+            action="collect_name"
+        )
+    
+    elif intent == "faq":
+        await update_conversation(session_id, "faq", {})
+        return ChatResponse(response=intent_response)
+    
+    elif intent == "negative":
+        return ChatResponse(response=intent_response)
+    
+    else:
+        return ChatResponse(response=intent_response)
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
-    
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
-    
-    return status_checks
+@api_router.post("/leads", response_model=Lead)
+async def create_lead(lead_data: LeadCreate):
+    """Manually create a lead"""
+    lead = Lead(**lead_data.model_dump())
+    lead_dict = lead.model_dump()
+    await db.leads.insert_one(lead_dict)
+    return lead
 
-# Include the router in the main app
+@api_router.get("/leads", response_model=List[Lead])
+async def get_leads():
+    """Get all leads"""
+    leads = await db.leads.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    return leads
+
+@api_router.patch("/leads/{lead_id}/status")
+async def update_lead_status(lead_id: str, status: str):
+    """Update lead status"""
+    result = await db.leads.update_one(
+        {"id": lead_id},
+        {"$set": {"status": status}}
+    )
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    return {"message": "Status updated", "status": status}
+
+@api_router.delete("/leads/{lead_id}")
+async def delete_lead(lead_id: str):
+    """Delete a lead"""
+    result = await db.leads.delete_one({"id": lead_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    return {"message": "Lead deleted"}
+
+@api_router.get("/stats")
+async def get_stats():
+    """Get dashboard statistics"""
+    total_leads = await db.leads.count_documents({})
+    new_leads = await db.leads.count_documents({"status": "new"})
+    contacted = await db.leads.count_documents({"status": "contacted"})
+    booked = await db.leads.count_documents({"status": "booked"})
+    completed = await db.leads.count_documents({"status": "completed"})
+    
+    return {
+        "total_leads": total_leads,
+        "new_leads": new_leads,
+        "contacted": contacted,
+        "booked": booked,
+        "completed": completed
+    }
+
+# SMS placeholder endpoint (ready for Twilio integration)
+@api_router.post("/sms/send")
+async def send_sms_notification(lead_id: str):
+    """Placeholder for SMS notification - ready for Twilio integration"""
+    lead = await db.leads.find_one({"id": lead_id}, {"_id": 0})
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    # TODO: Integrate Twilio here
+    # message = f"New lead from {lead['name']}! Phone: {lead['phone']}, Suburb: {lead['suburb']}, Job: {lead['job_description']}"
+    # client.messages.create(body=message, from_=TWILIO_NUMBER, to=BUSINESS_PHONE)
+    
+    await db.leads.update_one({"id": lead_id}, {"$set": {"sms_sent": True}})
+    
+    return {
+        "message": "SMS notification simulated (Twilio integration ready)",
+        "lead_id": lead_id,
+        "sms_sent": True,
+        "note": "To enable real SMS, add Twilio credentials to .env"
+    }
+
+# Include router
 app.include_router(api_router)
 
 app.add_middleware(
@@ -76,13 +363,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
