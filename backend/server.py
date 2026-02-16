@@ -366,27 +366,33 @@ async def chat(chat_message: ChatMessage):
         return ChatResponse(
             response=f"Awesome! ✅ Thanks {collected_data.get('name', '')}! I've passed your details to the team at Add Power Electrics and sent you a confirmation.\n\n📋 **Your Request:**\n• Name: {collected_data.get('name')}\n• Phone: {collected_data.get('phone')}\n• Suburb: {collected_data.get('suburb')}\n• Job: {collected_data.get('job_description')}\n\n📧 A confirmation has been sent to you!\n\nWe'll be in touch shortly! Is there anything else I can help with?",
             action="lead_saved",
-            lead_data=clean_lead_data
+            lead_data=clean_lead_data,
+            quick_replies=QUICK_REPLIES["lead_saved"]
         )
     
     # Handle intents based on current state
     if intent == "greeting":
         await update_conversation(session_id, "greeting", {})
-        return ChatResponse(response=intent_response)
+        return ChatResponse(response=intent_response, quick_replies=QUICK_REPLIES["greeting"])
     
-    elif intent == "start_lead" or (intent == "affirmative" and state in ["greeting", "faq", "completed"]):
+    elif intent == "diy_warning":
+        await update_conversation(session_id, "faq", {})
+        return ChatResponse(response=intent_response, quick_replies=QUICK_REPLIES["diy_warning"])
+    
+    elif intent == "start_lead" or (intent == "affirmative" and state in ["greeting", "faq", "completed", "diy_warning"]):
         await update_conversation(session_id, "collect_name", {})
         return ChatResponse(
             response="Great! I'd love to help you book a service. Let me grab a few details so we can get back to you quickly. 👤 What's your name?",
-            action="collect_name"
+            action="collect_name",
+            quick_replies=[]
         )
     
     elif intent == "faq":
         await update_conversation(session_id, "faq", {})
-        return ChatResponse(response=intent_response)
+        return ChatResponse(response=intent_response, quick_replies=QUICK_REPLIES["faq_followup"])
     
     elif intent == "negative":
-        return ChatResponse(response=intent_response)
+        return ChatResponse(response=intent_response, quick_replies=QUICK_REPLIES["negative"])
     
     else:
         return ChatResponse(response=intent_response)
