@@ -341,7 +341,8 @@ def main():
     print(f"Tests Passed: {tester.tests_passed}")
     print(f"Success Rate: {(tester.tests_passed/tester.tests_run*100):.1f}%")
     
-    passed_count = sum(test_results)
+    # Count boolean results only
+    passed_count = sum(1 for result in test_results if result is True)
     print(f"Overall Tests Passed: {passed_count}/{len(test_results)}")
     
     if tester.tests_passed == tester.tests_run and passed_count == len(test_results):
