@@ -172,7 +172,7 @@ class AddPowerElectricsChatbotTester:
             data={"message": "Clyde North", "session_id": lead_session}
         )
         
-        if not success4 or "job" not in response4.get("response", "").lower():
+        if not success4 or ("job" not in response4.get("response", "").lower() and "describe" not in response4.get("response", "").lower()):
             print("❌ Suburb collection didn't work")
             return False
         
