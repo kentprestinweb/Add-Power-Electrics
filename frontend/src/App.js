@@ -367,7 +367,7 @@ const LandingPage = () => {
                     Service Areas
                   </h3>
                   <p className="text-white/80 text-sm leading-relaxed">
-                    Clyde North, Cranbourne, Berwick, Narre Warren, Pakenham, Officer, Hallam, Dandenong, and all surrounding suburbs in Melbourne's south-east.
+                    We service the entire Greater Melbourne area - from the CBD to outer suburbs including Clyde North, Cranbourne, Berwick, Pakenham, and everywhere in between.
                   </p>
                 </div>
               </div>
