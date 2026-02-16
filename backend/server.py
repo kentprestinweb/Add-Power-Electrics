@@ -39,6 +39,7 @@ class Lead(BaseModel):
     sms_sent: bool = False
     email_sent: bool = False
     quote_sent: bool = False
+    review_requested: bool = False
 
 class LeadCreate(BaseModel):
     name: str
