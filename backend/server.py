@@ -210,7 +210,7 @@ def detect_intent(message: str) -> tuple:
         return ("diy_warning", "⚠️ For your safety, we strongly recommend NOT doing electrical work yourself. In Australia, DIY electrical work is actually illegal and can void your insurance, cause fires, or serious injury.\n\nWe offer affordable rates and can usually come out within 24-48 hours. Want me to grab your details for a free quote?")
     
     # Check for booking/quote intent
-    booking_words = ["book", "appointment", "schedule", "come out", "visit", "call me", "contact"]
+    booking_words = ["book", "appointment", "schedule", "come out", "visit", "call me", "contact", "call back", "callback"]
     if any(b in message_lower for b in booking_words):
         return ("start_lead", "Great! I'd love to help you book a service. Let me grab a few details so we can get back to you quickly. What's your name?")
     
