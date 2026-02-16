@@ -80,7 +80,7 @@ BUSINESS_INFO = {
     "owner": "The team at Add Power Electrics",
     "phone": "0448 195 614",
     "rating": "5.0 stars (37 reviews)",
-    "areas": "Clyde North and nearby areas in Melbourne's south-east",
+    "areas": "Greater Melbourne - all suburbs from CBD to outer areas",
     "hours": "9 AM - 5 PM, Monday to Friday",
     "emergency": "Yes, we offer emergency electrical services"
 }
