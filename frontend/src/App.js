@@ -506,6 +506,20 @@ const AdminDashboard = () => {
     }
   };
 
+  const sendReviewRequest = async (leadId) => {
+    try {
+      const response = await axios.post(`${API}/email/send-review-request?lead_id=${leadId}`);
+      alert('Review request sent! (Simulated)');
+      fetchData();
+    } catch (error) {
+      if (error.response?.data?.detail) {
+        alert(error.response.data.detail);
+      } else {
+        console.error('Failed to send review request:', error);
+      }
+    }
+  };
+
   const statusColors = {
     new: 'bg-blue-100 text-blue-800',
     contacted: 'bg-yellow-100 text-yellow-800',
