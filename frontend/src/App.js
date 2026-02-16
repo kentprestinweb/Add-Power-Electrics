@@ -686,6 +686,23 @@ const AdminDashboard = () => {
                             <FileText size={12} /> Quote
                           </span>
                         </button>
+                        {lead.status === 'completed' && (
+                          <button
+                            data-testid={`review-btn-${idx}`}
+                            onClick={() => lead.review_requested ? null : previewEmail(lead.id, 'review_request')}
+                            className={`ml-2 px-3 py-1 text-xs font-medium rounded transition-colors ${
+                              lead.review_requested 
+                                ? 'bg-green-900/30 text-green-400 cursor-default' 
+                                : 'bg-purple-600 hover:bg-purple-700 text-white'
+                            }`}
+                            title="Request Google Review"
+                            disabled={lead.review_requested}
+                          >
+                            <span className="flex items-center gap-1">
+                              <Star size={12} /> {lead.review_requested ? 'Review Sent' : 'Get Review'}
+                            </span>
+                          </button>
+                        )}
                         {lead.email_sent && (
                           <span className="ml-2 text-green-400 text-xs flex items-center gap-1">
                             <Mail size={12} /> ✓
@@ -702,6 +719,14 @@ const AdminDashboard = () => {
 
         {/* Integration Notices */}
         <div className="mt-6 space-y-4">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-sm p-4 flex items-start gap-3">
+            <Star size={20} className="text-purple-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm text-zinc-300">
+                <strong>Review Requests:</strong> Once a job is marked 'Completed', you can send a review request email asking for a Google review. More 5-star reviews = better Google ranking = more leads!
+              </p>
+            </div>
+          </div>
           <div className="bg-zinc-900 border border-zinc-800 rounded-sm p-4 flex items-start gap-3">
             <Mail size={20} className="text-green-400 flex-shrink-0 mt-0.5" />
             <div>
