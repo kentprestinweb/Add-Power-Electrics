@@ -405,6 +405,10 @@ async def chat(chat_message: ChatMessage):
     elif intent == "negative":
         return ChatResponse(response=intent_response, quick_replies=QUICK_REPLIES["negative"])
     
+    elif intent == "other_service":
+        await update_conversation(session_id, "other", {})
+        return ChatResponse(response=intent_response, quick_replies=QUICK_REPLIES["other_service"])
+    
     elif intent == "explore_services" or intent == "unknown":
         await update_conversation(session_id, "exploring", {})
         return ChatResponse(response=intent_response, quick_replies=QUICK_REPLIES["services_menu"])
