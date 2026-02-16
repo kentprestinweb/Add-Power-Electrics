@@ -250,15 +250,26 @@ async def chat(chat_message: ChatMessage):
             job_description=collected_data.get("job_description", "")
         )
         lead_dict = lead.model_dump()
-        await db.leads.insert_one(lead_dict)
+        await db.leads.insert_one(lead_dict.copy())  # Use copy to avoid _id mutation
         
         # Reset conversation
         await update_conversation(session_id, "completed", {})
         
+        # Return clean lead data without potential _id
+        clean_lead_data = {
+            "id": lead_dict["id"],
+            "name": lead_dict["name"],
+            "phone": lead_dict["phone"],
+            "suburb": lead_dict["suburb"],
+            "job_description": lead_dict["job_description"],
+            "status": lead_dict["status"],
+            "created_at": lead_dict["created_at"]
+        }
+        
         return ChatResponse(
             response=f"Awesome! ✅ Thanks {collected_data.get('name', '')}! I've passed your details to the team at Add Power Electrics.\n\n📋 **Your Request:**\n• Name: {collected_data.get('name')}\n• Phone: {collected_data.get('phone')}\n• Suburb: {collected_data.get('suburb')}\n• Job: {collected_data.get('job_description')}\n\nWe'll be in touch shortly! Is there anything else I can help with?",
             action="lead_saved",
-            lead_data=lead_dict
+            lead_data=clean_lead_data
         )
     
     # Handle intents based on current state
