@@ -37,12 +37,25 @@ class Lead(BaseModel):
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     status: str = "new"  # new, contacted, booked, completed
     sms_sent: bool = False
+    email_sent: bool = False
+    quote_sent: bool = False
 
 class LeadCreate(BaseModel):
     name: str
     phone: str
     suburb: str
     job_description: str
+
+class EmailLog(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    lead_id: str
+    email_type: str  # "confirmation", "quote"
+    recipient_name: str
+    recipient_phone: str
+    subject: str
+    body: str
+    sent_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    status: str = "sent"  # In real implementation: "sent", "delivered", "failed"
 
 class ChatMessage(BaseModel):
     message: str
