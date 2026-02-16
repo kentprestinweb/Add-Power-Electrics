@@ -752,7 +752,9 @@ const AdminDashboard = () => {
           <div className="bg-zinc-900 border border-zinc-800 rounded-lg w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
             <div className="px-6 py-4 border-b border-zinc-800 flex items-center justify-between">
               <h3 className="text-lg font-bold uppercase tracking-tight" style={{fontFamily: 'Barlow Condensed'}}>
-                {emailPreview.type === 'quote' ? '📧 Quote Email Preview' : '📧 Confirmation Email Preview'}
+                {emailPreview.type === 'quote' ? '📧 Quote Email Preview' : 
+                 emailPreview.type === 'review_request' ? '⭐ Review Request Preview' : 
+                 '📧 Confirmation Email Preview'}
               </h3>
               <button 
                 onClick={() => setShowEmailModal(false)}
@@ -791,6 +793,19 @@ const AdminDashboard = () => {
                   style={{fontFamily: 'Barlow Condensed'}}
                 >
                   Send Quote Email
+                </button>
+              )}
+              {emailPreview.type === 'review_request' && (
+                <button
+                  data-testid="send-review-confirm-btn"
+                  onClick={() => {
+                    sendReviewRequest(emailPreview.leadId);
+                    setShowEmailModal(false);
+                  }}
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold uppercase tracking-wider rounded transition-colors"
+                  style={{fontFamily: 'Barlow Condensed'}}
+                >
+                  Send Review Request
                 </button>
               )}
             </div>
