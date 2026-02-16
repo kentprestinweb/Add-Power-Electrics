@@ -140,10 +140,41 @@ FAQ_PATTERNS = [
     (["license", "licensed", "insured", "insurance", "qualified", "certified"],
      "Absolutely! Add Power Electrics is fully licensed and insured. All our work meets Australian electrical standards and we provide certificates of compliance."),
     
+    # DIY / How to do it myself questions - SAFETY REDIRECT
+    (["how to", "how do i", "how can i", "diy", "myself", "manually", "tutorial", "guide", "steps to", "can i do"],
+     "⚠️ For your safety, we strongly recommend NOT doing electrical work yourself. In Australia, DIY electrical work is actually illegal and can void your insurance, cause fires, or serious injury.\n\nWe offer affordable rates and can usually come out within 24-48 hours. Want me to grab your details for a free quote?"),
+    
     # General inquiry - last resort
     (["help", "service", "work", "job", "need", "looking", "install"],
      "We offer a full range of residential and commercial electrical services! This includes powerpoints, lighting, switchboards, smoke alarms, ceiling fans, EV chargers, and more. What can we help you with today?"),
 ]
+
+# Helper function to check if message looks like a question
+def is_question(message: str) -> bool:
+    """Check if a message looks like a question rather than an answer"""
+    message_lower = message.lower().strip()
+    question_indicators = [
+        "how much", "how to", "how do", "how can", "how long",
+        "what is", "what's", "what are", "what do",
+        "when", "where", "why", "which",
+        "can you", "can i", "do you", "is it", "are you",
+        "cost", "price", "charge", "rate",
+        "?"
+    ]
+    return any(q in message_lower for q in question_indicators)
+
+# Helper function to validate name
+def is_valid_name(message: str) -> bool:
+    """Check if message looks like a valid name"""
+    message = message.strip()
+    # Name should be 2-50 chars, mostly letters/spaces, not a question
+    if len(message) < 2 or len(message) > 50:
+        return False
+    if is_question(message):
+        return False
+    # Should contain mostly letters
+    letter_count = sum(1 for c in message if c.isalpha() or c.isspace())
+    return letter_count >= len(message) * 0.7
 
 # ============== CHATBOT LOGIC ==============
 
@@ -154,7 +185,12 @@ def detect_intent(message: str) -> tuple:
     # Check for greetings
     greetings = ["hi", "hello", "hey", "g'day", "gday", "good morning", "good afternoon"]
     if any(g in message_lower for g in greetings):
-        return ("greeting", f"G'day! 👋 Welcome to Add Power Electrics - your trusted local sparky in Clyde North with a 5-star rating! How can I help you today? I can answer questions about our services or help you book a job.")
+        return ("greeting", f"G'day! 👋 Welcome to Add Power Electrics - your trusted local sparky in Greater Melbourne with a 5-star rating! How can I help you today? I can answer questions about our services or help you book a job.")
+    
+    # Check for DIY/how-to questions FIRST (safety concern)
+    diy_patterns = ["how to", "how do i", "how can i", "diy", "myself", "manually", "tutorial", "guide", "steps to", "can i do it myself"]
+    if any(diy in message_lower for diy in diy_patterns):
+        return ("diy_warning", "⚠️ For your safety, we strongly recommend NOT doing electrical work yourself. In Australia, DIY electrical work is actually illegal and can void your insurance, cause fires, or serious injury.\n\nWe offer affordable rates and can usually come out within 24-48 hours. Want me to grab your details for a free quote?")
     
     # Check for booking/quote intent
     booking_words = ["book", "appointment", "schedule", "come out", "visit", "call me", "contact"]
