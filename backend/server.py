@@ -66,6 +66,21 @@ class ChatResponse(BaseModel):
     response: str
     action: Optional[str] = None  # None, "collect_name", "collect_phone", "collect_suburb", "collect_job", "lead_saved"
     lead_data: Optional[dict] = None
+    quick_replies: Optional[List[str]] = None  # Dynamic quick reply suggestions
+
+# Quick reply sets for different contexts
+QUICK_REPLIES = {
+    "greeting": ["Get a free quote", "What areas do you service?", "Emergency help"],
+    "faq_followup": ["Yes, book now", "No thanks", "Tell me more"],
+    "diy_warning": ["Yes, get a quote", "No thanks"],
+    "after_booking_offer": ["Yes please", "Maybe later", "Just browsing"],
+    "collect_name": [],  # No quick replies during data collection
+    "collect_phone": [],
+    "collect_suburb": ["Clyde North", "Cranbourne", "Berwick", "Pakenham", "Other"],
+    "collect_job": ["Powerpoint installation", "Switchboard upgrade", "Lighting", "EV charger", "Other"],
+    "lead_saved": ["Ask another question", "That's all, thanks"],
+    "negative": ["Actually, yes book me in", "Ask another question"],
+}
 
 class ConversationState(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
