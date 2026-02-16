@@ -134,21 +134,37 @@ const ChatbotWidget = () => {
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-4 bg-zinc-900/50 space-y-4">
             {messages.map((msg, idx) => (
-              <div
-                key={idx}
-                className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
+              <div key={idx}>
                 <div
-                  data-testid={`chat-message-${idx}`}
-                  className={`max-w-[85%] p-3 text-sm ${
-                    msg.type === 'user'
-                      ? 'bg-[#2563EB] text-white chat-bubble-user'
-                      : 'bg-zinc-800 text-zinc-100 chat-bubble-bot border-l-2 border-[#FACC15]'
-                  }`}
-                  style={{ whiteSpace: 'pre-wrap' }}
+                  className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  {msg.text}
+                  <div
+                    data-testid={`chat-message-${idx}`}
+                    className={`max-w-[85%] p-3 text-sm ${
+                      msg.type === 'user'
+                        ? 'bg-[#2563EB] text-white chat-bubble-user'
+                        : 'bg-zinc-800 text-zinc-100 chat-bubble-bot border-l-2 border-[#FACC15]'
+                    }`}
+                    style={{ whiteSpace: 'pre-wrap' }}
+                  >
+                    {msg.text}
+                  </div>
                 </div>
+                {/* Quick Replies after bot message - only show for last message */}
+                {msg.type === 'bot' && idx === messages.length - 1 && msg.quickReplies && msg.quickReplies.length > 0 && !isTyping && (
+                  <div className="flex flex-wrap gap-2 mt-2 ml-1">
+                    {msg.quickReplies.map((reply, replyIdx) => (
+                      <button
+                        key={replyIdx}
+                        data-testid={`quick-reply-${replyIdx}`}
+                        onClick={() => handleQuickReply(reply)}
+                        className="px-3 py-1.5 bg-zinc-800 hover:bg-[#2563EB] hover:text-white text-zinc-300 text-xs rounded-full whitespace-nowrap transition-all border border-zinc-700 hover:border-[#2563EB]"
+                      >
+                        {reply}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
             
@@ -163,27 +179,6 @@ const ChatbotWidget = () => {
             )}
             <div ref={messagesEndRef} />
           </div>
-
-          {/* Quick Replies */}
-          {messages.length <= 2 && (
-            <div className="px-4 py-2 bg-zinc-900 border-t border-zinc-800 flex gap-2 overflow-x-auto">
-              {quickReplies.map((reply, idx) => (
-                <button
-                  key={idx}
-                  data-testid={`quick-reply-${idx}`}
-                  onClick={() => {
-                    setInputValue(reply);
-                    setTimeout(() => {
-                      const input = document.querySelector('[data-testid="chat-input"]');
-                      if (input) input.focus();
-                    }, 100);
-                  }}
-                  className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs rounded-full whitespace-nowrap transition-colors border border-zinc-700"
-                >
-                  {reply}
-                </button>
-              ))}
-            </div>
           )}
 
           {/* Input Area */}
