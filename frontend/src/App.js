@@ -102,7 +102,7 @@ const ChatbotWidget = () => {
       {isOpen && (
         <div 
           data-testid="chat-window"
-          className="fixed bottom-6 right-6 w-[380px] h-[550px] bg-zinc-950 border border-zinc-800 rounded-lg shadow-2xl overflow-hidden flex flex-col z-50 animate-slide-up"
+          className="fixed bottom-24 right-6 w-[380px] h-[550px] bg-zinc-950 border border-zinc-800 rounded-lg shadow-2xl overflow-hidden flex flex-col z-[9999] animate-slide-up"
         >
           {/* Header */}
           <div className="bg-[#2563EB] p-4 flex items-center justify-between">
