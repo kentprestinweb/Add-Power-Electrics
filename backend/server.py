@@ -184,9 +184,9 @@ def detect_intent(message: str) -> tuple:
     if any(b in message_lower for b in booking_words):
         return ("start_lead", "Great! I'd love to help you book a service. Let me grab a few details so we can get back to you quickly. What's your name?")
     
-    # Check FAQ keywords
-    for keywords, response in FAQ_RESPONSES.items():
-        if any(kw in message_lower for kw in keywords.split("|")):
+    # Check FAQ patterns (ordered list - more specific first)
+    for keywords, response in FAQ_PATTERNS:
+        if any(kw in message_lower for kw in keywords):
             return ("faq", response + "\n\nWould you like to book a job or get a free quote? I can grab your details!")
     
     # Check for yes/affirmative responses
