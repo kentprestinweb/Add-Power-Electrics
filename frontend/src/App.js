@@ -246,7 +246,7 @@ const LandingPage = () => {
                 <h1 className="text-xl font-bold uppercase tracking-tight text-zinc-900" style={{fontFamily: 'Barlow Condensed'}}>
                   Add Power Electrics
                 </h1>
-                <p className="text-xs text-zinc-500 font-mono">CLYDE NORTH & SURROUNDS</p>
+                <p className="text-xs text-zinc-500 font-mono">GREATER MELBOURNE</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
