@@ -179,7 +179,6 @@ const ChatbotWidget = () => {
             )}
             <div ref={messagesEndRef} />
           </div>
-          )}
 
           {/* Input Area */}
           <div className="p-4 bg-zinc-950 border-t border-zinc-800">
@@ -195,7 +194,7 @@ const ChatbotWidget = () => {
               />
               <button
                 data-testid="chat-send-btn"
-                onClick={sendMessage}
+                onClick={() => sendMessage()}
                 disabled={!inputValue.trim()}
                 className="bg-[#2563EB] hover:bg-[#1d4ed8] disabled:bg-zinc-700 disabled:cursor-not-allowed text-white px-4 rounded-sm transition-colors btn-press"
               >
