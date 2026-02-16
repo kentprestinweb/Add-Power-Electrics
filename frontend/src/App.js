@@ -662,6 +662,21 @@ const AdminDashboard = () => {
                             'Send SMS'
                           )}
                         </button>
+                        <button
+                          data-testid={`quote-btn-${idx}`}
+                          onClick={() => previewEmail(lead.id, 'quote')}
+                          className="ml-2 px-3 py-1 text-xs font-medium rounded transition-colors bg-[#FACC15] hover:bg-[#eab308] text-black"
+                          title="Preview & Send Quote"
+                        >
+                          <span className="flex items-center gap-1">
+                            <FileText size={12} /> Quote
+                          </span>
+                        </button>
+                        {lead.email_sent && (
+                          <span className="ml-2 text-green-400 text-xs flex items-center gap-1">
+                            <Mail size={12} /> ✓
+                          </span>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -671,16 +686,78 @@ const AdminDashboard = () => {
           )}
         </div>
 
-        {/* SMS Integration Notice */}
-        <div className="mt-6 bg-zinc-900 border border-zinc-800 rounded-sm p-4 flex items-start gap-3">
-          <AlertCircle size={20} className="text-[#FACC15] flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm text-zinc-300">
-              <strong>SMS Notifications:</strong> Currently simulated. To enable real SMS notifications to <span className="font-mono text-[#FACC15]">0448 195 614</span>, add your Twilio credentials to the backend configuration.
-            </p>
+        {/* Integration Notices */}
+        <div className="mt-6 space-y-4">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-sm p-4 flex items-start gap-3">
+            <Mail size={20} className="text-green-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm text-zinc-300">
+                <strong>Email Notifications:</strong> Confirmation emails are auto-sent when leads are captured. Quote emails can be sent manually via the Quote button. Currently <span className="text-[#FACC15]">MOCKED</span> - add SendGrid/Resend credentials to enable real emails.
+              </p>
+            </div>
+          </div>
+          <div className="bg-zinc-900 border border-zinc-800 rounded-sm p-4 flex items-start gap-3">
+            <AlertCircle size={20} className="text-[#FACC15] flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm text-zinc-300">
+                <strong>SMS Notifications:</strong> Currently simulated. To enable real SMS notifications to <span className="font-mono text-[#FACC15]">0448 195 614</span>, add your Twilio credentials.
+              </p>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Email Preview Modal */}
+      {showEmailModal && emailPreview && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-lg w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+            <div className="px-6 py-4 border-b border-zinc-800 flex items-center justify-between">
+              <h3 className="text-lg font-bold uppercase tracking-tight" style={{fontFamily: 'Barlow Condensed'}}>
+                {emailPreview.type === 'quote' ? '📧 Quote Email Preview' : '📧 Confirmation Email Preview'}
+              </h3>
+              <button 
+                onClick={() => setShowEmailModal(false)}
+                className="text-zinc-400 hover:text-white"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1">
+              <div className="mb-4">
+                <p className="text-xs font-mono uppercase text-zinc-500 mb-1">Subject</p>
+                <p className="text-white font-medium">{emailPreview.subject}</p>
+              </div>
+              <div>
+                <p className="text-xs font-mono uppercase text-zinc-500 mb-2">Email Body</p>
+                <div className="bg-zinc-800 rounded p-4 text-zinc-300 text-sm whitespace-pre-wrap font-mono leading-relaxed">
+                  {emailPreview.body}
+                </div>
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t border-zinc-800 flex justify-end gap-3">
+              <button
+                onClick={() => setShowEmailModal(false)}
+                className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium rounded transition-colors"
+              >
+                Close
+              </button>
+              {emailPreview.type === 'quote' && (
+                <button
+                  data-testid="send-quote-confirm-btn"
+                  onClick={() => {
+                    sendQuoteEmail(emailPreview.leadId);
+                    setShowEmailModal(false);
+                  }}
+                  className="px-4 py-2 bg-[#FACC15] hover:bg-[#eab308] text-black text-sm font-bold uppercase tracking-wider rounded transition-colors"
+                  style={{fontFamily: 'Barlow Condensed'}}
+                >
+                  Send Quote Email
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
