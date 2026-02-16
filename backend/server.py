@@ -72,26 +72,64 @@ BUSINESS_INFO = {
     "emergency": "Yes, we offer emergency electrical services"
 }
 
-FAQ_RESPONSES = {
-    # Service areas
-    "area|areas|service|suburb|location|where|clyde|melbourne": 
-        f"We service Clyde North and nearby areas in Melbourne's south-east including Cranbourne, Berwick, Narre Warren, Pakenham, and surrounds. Are you in our service area?",
-    
-    # Availability
-    "available|today|urgent|emergency|asap|quick":
-        "We try to accommodate urgent jobs where possible! For emergencies, we prioritise safety issues. Let me grab your details and we'll get back to you ASAP with availability.",
-    
-    # Quotes
-    "quote|cost|price|how much|pricing|rates|charge":
-        "We offer free quotes for most jobs! Pricing depends on the scope of work. Would you like us to come out and provide a no-obligation quote?",
-    
-    # License & Insurance
-    "license|licensed|insured|insurance|qualified|certified":
-        "Absolutely! Add Power Electrics is fully licensed and insured. All our work meets Australian electrical standards and we provide certificates of compliance.",
+# Order matters - more specific patterns first
+FAQ_PATTERNS = [
+    # EV Chargers - specific pattern first
+    (["ev", "electric vehicle", "ev charger", "tesla charger", "car charger", "charging station"],
+     "EV charger installation is one of our growing specialties! We install home charging stations for Tesla, BYD, Hyundai, and all other electric vehicles. We can set up 7kW single-phase or 22kW three-phase chargers. What type of EV do you have, and do you know if you have single or three-phase power?"),
     
     # Powerpoints
-    "powerpoint|power point|outlet|socket|gpo":
-        "Yes, we install powerpoints! Whether you need additional outlets, USB powerpoints, or outdoor weatherproof GPOs, we've got you covered. Where do you need them installed?",
+    (["powerpoint", "power point", "outlet", "socket", "gpo"],
+     "Yes, we install powerpoints! Whether you need additional outlets, USB powerpoints, or outdoor weatherproof GPOs, we've got you covered. Where do you need them installed?"),
+    
+    # Switchboard
+    (["switchboard", "fuse box", "safety switch", "rcd", "circuit breaker"],
+     "Switchboard upgrades are one of our specialties! We can upgrade old fuse boxes to modern safety switch boards, add circuits, or install new RCDs. Is your switchboard giving you trouble?"),
+    
+    # Lights & Downlights
+    (["light", "lights", "downlight", "led", "lighting", "lamp"],
+     "We're experts in lighting! LED downlights, pendant lights, outdoor security lighting, sensor lights - you name it. Looking to upgrade to energy-efficient LEDs?"),
+    
+    # Ceiling Fans
+    (["ceiling fan", "fan", "cooling"],
+     "Ceiling fan installation is a popular service! We can install new fans or replace existing ones. Do you have existing wiring or need new cabling run?"),
+    
+    # Smoke Alarms
+    (["smoke alarm", "smoke detector", "fire alarm"],
+     "Smoke alarm installation and testing is essential for safety! We install interconnected smoke alarms that comply with Australian regulations. Need your alarms checked?"),
+    
+    # TV & Data
+    (["tv", "television", "antenna", "data", "network", "internet"],
+     "Yes! We do TV wall mounting and antenna installation with attention to detail - clean cable management included. Where would you like your TV mounted?"),
+    
+    # Power Issues
+    (["tripping", "trip", "power out", "no power", "blackout", "fault"],
+     "Power tripping can be caused by faulty appliances, overloaded circuits, or safety switch issues. This needs attention! Can I grab your details so we can help diagnose the issue?"),
+    
+    # Hot Water
+    (["hot water", "water heater"],
+     "We can help with hot water system electrical connections and troubleshooting. Is your hot water system electric or do you need electrical work for a new installation?"),
+    
+    # Service areas
+    (["area", "areas", "suburb", "location", "where", "clyde", "melbourne", "service area"],
+     "We service Clyde North and nearby areas in Melbourne's south-east including Cranbourne, Berwick, Narre Warren, Pakenham, and surrounds. Are you in our service area?"),
+    
+    # Availability
+    (["available", "today", "urgent", "emergency", "asap", "quick"],
+     "We try to accommodate urgent jobs where possible! For emergencies, we prioritise safety issues. Let me grab your details and we'll get back to you ASAP with availability."),
+    
+    # Quotes - more general
+    (["quote", "cost", "price", "how much", "pricing", "rates", "charge"],
+     "We offer free quotes for most jobs! Pricing depends on the scope of work. Would you like us to come out and provide a no-obligation quote?"),
+    
+    # License & Insurance
+    (["license", "licensed", "insured", "insurance", "qualified", "certified"],
+     "Absolutely! Add Power Electrics is fully licensed and insured. All our work meets Australian electrical standards and we provide certificates of compliance."),
+    
+    # General inquiry - last resort
+    (["help", "service", "work", "job", "need", "looking", "install"],
+     "We offer a full range of residential and commercial electrical services! This includes powerpoints, lighting, switchboards, smoke alarms, ceiling fans, EV chargers, and more. What can we help you with today?"),
+]
     
     # Switchboard
     "switchboard|fuse box|safety switch|rcd|circuit breaker":
