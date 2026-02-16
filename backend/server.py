@@ -395,7 +395,7 @@ async def chat(chat_message: ChatMessage):
         return ChatResponse(response=intent_response, quick_replies=QUICK_REPLIES["negative"])
     
     else:
-        return ChatResponse(response=intent_response)
+        return ChatResponse(response=intent_response, quick_replies=QUICK_REPLIES["greeting"])
 
 @api_router.post("/leads", response_model=Lead)
 async def create_lead(lead_data: LeadCreate):
