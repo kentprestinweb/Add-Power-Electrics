@@ -361,6 +361,151 @@ async def get_stats():
         "completed": completed
     }
 
+# ============== EMAIL FUNCTIONS ==============
+
+def generate_confirmation_email(lead: dict) -> dict:
+    """Generate confirmation email content for customer"""
+    subject = "Thanks for contacting Add Power Electrics! ⚡"
+    body = f"""Hi {lead['name']},
+
+Thanks for reaching out to Add Power Electrics! We've received your enquiry and a member of our team will be in touch shortly.
+
+📋 YOUR REQUEST DETAILS:
+━━━━━━━━━━━━━━━━━━━━━━
+• Name: {lead['name']}
+• Phone: {lead['phone']}
+• Location: {lead['suburb']}
+• Job Description: {lead['job_description']}
+━━━━━━━━━━━━━━━━━━━━━━
+
+We typically respond within 2-4 business hours. For urgent electrical emergencies, please call us directly at 0448 195 614.
+
+What happens next?
+1. Our team reviews your request
+2. We'll call you to discuss the job and arrange a time
+3. We provide a free, no-obligation quote on-site
+
+⭐ Add Power Electrics
+Licensed & Insured | 5.0 Stars (37 Reviews)
+Servicing Clyde North & Melbourne's South-East
+
+This is an automated confirmation email."""
+    
+    return {"subject": subject, "body": body}
+
+def generate_quote_email(lead: dict) -> dict:
+    """Generate quote request email content"""
+    subject = f"Your Free Quote Request - Add Power Electrics ⚡"
+    body = f"""Hi {lead['name']},
+
+Great news! We're ready to provide you with a FREE quote for your electrical work.
+
+📋 JOB SUMMARY:
+━━━━━━━━━━━━━━━━━━━━━━
+{lead['job_description']}
+━━━━━━━━━━━━━━━━━━━━━━
+
+📍 Location: {lead['suburb']}
+
+WHAT'S INCLUDED IN OUR QUOTE:
+✓ Detailed breakdown of work required
+✓ Transparent pricing - no hidden fees
+✓ Expected timeframe
+✓ All materials and labour
+
+We'd love to arrange a time to come out and assess the job. This visit is completely FREE with no obligation.
+
+To confirm your quote appointment, simply:
+📞 Call us: 0448 195 614
+💬 Reply to this message
+
+We look forward to helping you!
+
+⭐ Add Power Electrics
+Licensed & Insured | 5.0 Stars (37 Reviews)
+Servicing Clyde North & Melbourne's South-East"""
+    
+    return {"subject": subject, "body": body}
+
+async def send_confirmation_email(lead: dict) -> dict:
+    """Send confirmation email when lead is captured (MOCKED)"""
+    email_content = generate_confirmation_email(lead)
+    
+    # Create email log
+    email_log = EmailLog(
+        lead_id=lead['id'],
+        email_type="confirmation",
+        recipient_name=lead['name'],
+        recipient_phone=lead['phone'],
+        subject=email_content['subject'],
+        body=email_content['body']
+    )
+    
+    # Store email log in database
+    await db.email_logs.insert_one(email_log.model_dump())
+    
+    # Update lead
+    await db.leads.update_one({"id": lead['id']}, {"$set": {"email_sent": True}})
+    
+    logger.info(f"[MOCKED EMAIL] Confirmation sent to {lead['name']} ({lead['phone']})")
+    
+    return email_log.model_dump()
+
+# ============== EMAIL API ROUTES ==============
+
+@api_router.post("/email/send-quote")
+async def send_quote_email(lead_id: str):
+    """Send quote email to customer (MOCKED)"""
+    lead = await db.leads.find_one({"id": lead_id}, {"_id": 0})
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    email_content = generate_quote_email(lead)
+    
+    # Create email log
+    email_log = EmailLog(
+        lead_id=lead_id,
+        email_type="quote",
+        recipient_name=lead['name'],
+        recipient_phone=lead['phone'],
+        subject=email_content['subject'],
+        body=email_content['body']
+    )
+    
+    # Store email log
+    await db.email_logs.insert_one(email_log.model_dump())
+    
+    # Update lead
+    await db.leads.update_one({"id": lead_id}, {"$set": {"quote_sent": True}})
+    
+    logger.info(f"[MOCKED EMAIL] Quote sent to {lead['name']} ({lead['phone']})")
+    
+    return {
+        "message": "Quote email simulated (Email integration ready)",
+        "lead_id": lead_id,
+        "email": email_log.model_dump(),
+        "note": "To enable real emails, add SendGrid/Resend credentials to .env"
+    }
+
+@api_router.get("/email/logs")
+async def get_email_logs(lead_id: Optional[str] = None):
+    """Get email logs, optionally filtered by lead_id"""
+    query = {"lead_id": lead_id} if lead_id else {}
+    logs = await db.email_logs.find(query, {"_id": 0}).sort("sent_at", -1).to_list(100)
+    return logs
+
+@api_router.get("/email/preview/{lead_id}")
+async def preview_emails(lead_id: str):
+    """Preview what emails would be sent for a lead"""
+    lead = await db.leads.find_one({"id": lead_id}, {"_id": 0})
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    return {
+        "confirmation": generate_confirmation_email(lead),
+        "quote": generate_quote_email(lead)
+    }
+
 # SMS placeholder endpoint (ready for Twilio integration)
 @api_router.post("/sms/send")
 async def send_sms_notification(lead_id: str):
