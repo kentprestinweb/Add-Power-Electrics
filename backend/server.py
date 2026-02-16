@@ -279,12 +279,16 @@ async def chat(chat_message: ChatMessage):
         if is_question(message):
             # Handle common questions during lead capture
             if intent == "faq" or intent == "diy_warning":
+                field_name = 'name' if state == 'collect_name' else 'phone number' if state == 'collect_phone' else 'suburb' if state == 'collect_suburb' else 'job description'
                 return ChatResponse(
-                    response=f"{intent_response}\n\n---\n\n📝 By the way, I was just collecting your details for a quote. Would you like to continue? Just tell me your **{'name' if state == 'collect_name' else 'phone number' if state == 'collect_phone' else 'suburb' if state == 'collect_suburb' else 'job description'}**."
+                    response=f"{intent_response}\n\n---\n\n📝 By the way, I was just collecting your details for a quote. Would you like to continue? Just tell me your **{field_name}**.",
+                    quick_replies=["Continue booking", "Cancel"]
                 )
             elif any(word in message.lower() for word in ["how much", "cost", "price", "charge"]):
+                field_name = "name" if state == "collect_name" else "phone number" if state == "collect_phone" else "suburb" if state == "collect_suburb" else "job description"
                 return ChatResponse(
-                    response="Great question! Pricing depends on the specific job - that's why we offer free quotes. Once I have your details, we can give you an accurate price.\n\n📝 What's your **" + ("name" if state == "collect_name" else "phone number" if state == "collect_phone" else "suburb" if state == "collect_suburb" else "job description") + "**?"
+                    response=f"Great question! Pricing depends on the specific job - that's why we offer free quotes. Once I have your details, we can give you an accurate price.\n\n📝 What's your **{field_name}**?",
+                    quick_replies=["Continue booking", "Cancel"]
                 )
     
     # State machine for lead collection
@@ -293,13 +297,15 @@ async def chat(chat_message: ChatMessage):
         if not is_valid_name(message):
             return ChatResponse(
                 response="I didn't quite catch that. Could you please tell me your name?",
-                action="collect_name"
+                action="collect_name",
+                quick_replies=[]
             )
         collected_data["name"] = message
         await update_conversation(session_id, "collect_phone", collected_data)
         return ChatResponse(
             response=f"Thanks {message}! 📱 What's the best phone number to reach you on?",
-            action="collect_phone"
+            action="collect_phone",
+            quick_replies=[]
         )
     
     elif state == "collect_phone":
@@ -308,12 +314,14 @@ async def chat(chat_message: ChatMessage):
             await update_conversation(session_id, "collect_suburb", collected_data)
             return ChatResponse(
                 response="Perfect! 📍 What suburb are you located in?",
-                action="collect_suburb"
+                action="collect_suburb",
+                quick_replies=QUICK_REPLIES["collect_suburb"]
             )
         else:
             return ChatResponse(
                 response="Hmm, that doesn't look like a valid phone number. Could you please enter your Australian mobile or landline number? (e.g., 0412 345 678)",
-                action="collect_phone"
+                action="collect_phone",
+                quick_replies=[]
             )
     
     elif state == "collect_suburb":
@@ -321,7 +329,8 @@ async def chat(chat_message: ChatMessage):
         await update_conversation(session_id, "collect_job", collected_data)
         return ChatResponse(
             response="Great! 🔧 Now, briefly describe the electrical work you need done:",
-            action="collect_job"
+            action="collect_job",
+            quick_replies=QUICK_REPLIES["collect_job"]
         )
     
     elif state == "collect_job":
