@@ -228,8 +228,13 @@ def detect_intent(message: str) -> tuple:
     if any(n == message_lower for n in no_words):
         return ("negative", "No worries! Is there anything else I can help you with today?")
     
+    # Check for "tell me more" or similar exploratory responses
+    explore_words = ["tell me more", "more info", "what else", "other services", "what do you do", "services"]
+    if any(e in message_lower for e in explore_words):
+        return ("explore_services", "We offer a wide range of electrical services! Here are some of our most popular ones - tap to learn more, or type your own question:")
+    
     # Default response
-    return ("unknown", "I'm here to help with electrical questions! You can ask about our services like powerpoints, lighting, switchboards, smoke alarms, EV chargers, and more. Or if you're ready, I can help you book a job!")
+    return ("unknown", "I'm here to help with electrical questions! What would you like to know about? Tap a service below or type your question:")
 
 async def get_or_create_conversation(session_id: str) -> dict:
     """Get or create a conversation state"""
