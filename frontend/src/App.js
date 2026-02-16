@@ -324,7 +324,7 @@ const LandingPage = () => {
                   </div>
                   <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
                     <span className="text-zinc-600">Service Area</span>
-                    <span className="font-bold text-zinc-900">40km+</span>
+                    <span className="font-bold text-zinc-900">All Melbourne</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-zinc-600">Happy Customers</span>
