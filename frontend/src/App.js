@@ -18,8 +18,9 @@ const ChatbotWidget = () => {
   const [messages, setMessages] = useState([
     {
       type: 'bot',
-      text: "G'day! 👋 Welcome to Add Power Electrics - your trusted local sparky in Clyde North with a 5-star rating! How can I help you today?",
-      timestamp: new Date()
+      text: "G'day! 👋 Welcome to Add Power Electrics - your trusted local sparky in Greater Melbourne with a 5-star rating! How can I help you today?",
+      timestamp: new Date(),
+      quickReplies: ["Get a free quote", "What areas do you service?", "Emergency help"]
     }
   ]);
   const [inputValue, setInputValue] = useState('');
@@ -35,12 +36,13 @@ const ChatbotWidget = () => {
     scrollToBottom();
   }, [messages]);
 
-  const sendMessage = async () => {
-    if (!inputValue.trim()) return;
+  const sendMessage = async (messageText = null) => {
+    const textToSend = messageText || inputValue;
+    if (!textToSend.trim()) return;
 
     const userMessage = {
       type: 'user',
-      text: inputValue,
+      text: textToSend,
       timestamp: new Date()
     };
 
@@ -50,7 +52,7 @@ const ChatbotWidget = () => {
 
     try {
       const response = await axios.post(`${API}/chat`, {
-        message: inputValue,
+        message: textToSend,
         session_id: sessionId
       });
 
@@ -59,7 +61,8 @@ const ChatbotWidget = () => {
         setMessages(prev => [...prev, {
           type: 'bot',
           text: response.data.response,
-          timestamp: new Date()
+          timestamp: new Date(),
+          quickReplies: response.data.quick_replies || []
         }]);
       }, 800);
     } catch (error) {
@@ -67,7 +70,8 @@ const ChatbotWidget = () => {
       setMessages(prev => [...prev, {
         type: 'bot',
         text: "Sorry, I'm having trouble connecting. Please call us at 0448 195 614 for immediate assistance!",
-        timestamp: new Date()
+        timestamp: new Date(),
+        quickReplies: []
       }]);
     }
   };
@@ -79,11 +83,9 @@ const ChatbotWidget = () => {
     }
   };
 
-  const quickReplies = [
-    "Get a free quote",
-    "What areas do you service?",
-    "Emergency electrical help"
-  ];
+  const handleQuickReply = (reply) => {
+    sendMessage(reply);
+  };
 
   return (
     <>
