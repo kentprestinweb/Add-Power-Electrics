@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import "@/App.css";
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { Zap, MessageCircle, X, Send, Phone, MapPin, Wrench, Star, Clock, Shield, ChevronRight, Users, BarChart3, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Zap, MessageCircle, X, Send, Phone, MapPin, Wrench, Star, Clock, Shield, ChevronRight, Users, BarChart3, CheckCircle, AlertCircle, Loader2, Mail, Eye, FileText } from "lucide-react";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
