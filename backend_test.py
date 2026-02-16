@@ -439,6 +439,19 @@ def main():
     lead_created, lead_id = tester.test_manual_lead_creation()
     test_results.append(lead_created)
     
+    # Test email functionality
+    email_test_passed, email_lead_id = tester.test_email_auto_send_on_lead_capture()
+    test_results.append(email_test_passed)
+    
+    # Use email test lead ID if available, otherwise use manual lead ID
+    test_lead_id = email_lead_id if email_lead_id else lead_id
+    
+    if test_lead_id:
+        test_results.append(tester.test_email_preview(test_lead_id))
+        test_results.append(tester.test_email_quote_sending(test_lead_id))
+    
+    test_results.append(tester.test_email_logs())
+    
     if lead_created:
         test_results.append(tester.test_lead_status_update(lead_id))
         test_results.append(tester.test_sms_notification(lead_id))
