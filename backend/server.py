@@ -506,7 +506,74 @@ async def preview_emails(lead_id: str):
     
     return {
         "confirmation": generate_confirmation_email(lead),
-        "quote": generate_quote_email(lead)
+        "quote": generate_quote_email(lead),
+        "review_request": generate_review_request_email(lead)
+    }
+
+def generate_review_request_email(lead: dict) -> dict:
+    """Generate review request email for completed jobs"""
+    subject = "How did we do? ⭐ - Add Power Electrics"
+    body = f"""Hi {lead['name']},
+
+Thanks for choosing Add Power Electrics for your recent electrical work!
+
+We hope everything went smoothly. If you were happy with our service, we'd really appreciate a quick Google review - it only takes 30 seconds and helps other Melburnians find a sparky they can trust.
+
+⭐ LEAVE A REVIEW:
+https://g.page/r/YOUR-GOOGLE-REVIEW-LINK/review
+
+Your feedback helps us:
+✓ Improve our service
+✓ Help other customers find reliable electricians
+✓ Keep delivering 5-star work
+
+Already left a review? Thank you so much! 🙏
+
+If anything wasn't quite right, please reply to this email or call us on 0448 195 614 - we want to make it right.
+
+Thanks again for your business!
+
+⚡ Add Power Electrics
+5.0 Stars | 37+ Reviews | Greater Melbourne
+Licensed & Insured"""
+    
+    return {"subject": subject, "body": body}
+
+@api_router.post("/email/send-review-request")
+async def send_review_request_email(lead_id: str):
+    """Send review request email to customer after job completion (MOCKED)"""
+    lead = await db.leads.find_one({"id": lead_id}, {"_id": 0})
+    if not lead:
+        raise HTTPException(status_code=404, detail="Lead not found")
+    
+    if lead.get('status') != 'completed':
+        raise HTTPException(status_code=400, detail="Can only request reviews for completed jobs")
+    
+    email_content = generate_review_request_email(lead)
+    
+    # Create email log
+    email_log = EmailLog(
+        lead_id=lead_id,
+        email_type="review_request",
+        recipient_name=lead['name'],
+        recipient_phone=lead['phone'],
+        subject=email_content['subject'],
+        body=email_content['body']
+    )
+    
+    # Store email log
+    await db.email_logs.insert_one(email_log.model_dump())
+    
+    # Update lead
+    await db.leads.update_one({"id": lead_id}, {"$set": {"review_requested": True}})
+    
+    logger.info(f"[MOCKED EMAIL] Review request sent to {lead['name']} ({lead['phone']})")
+    
+    return {
+        "message": "Review request email simulated (Email integration ready)",
+        "lead_id": lead_id,
+        "email": email_log.model_dump(),
+        "note": "To enable real emails, add SendGrid/Resend credentials to .env"
     }
 
 # SMS placeholder endpoint (ready for Twilio integration)
