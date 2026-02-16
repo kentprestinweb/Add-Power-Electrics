@@ -1,0 +1,157 @@
+{
+  "identity": {
+    "name": "E1 - The Anti-AI Designer",
+    "theme": "Industrial Modern / Digital Utility",
+    "core_concept": "The Digital Multimeter - Precision, Power, Reliability",
+    "emotional_tone": "Charged, Professional, Efficient, Solid",
+    "target_audience": "Tradies, Electricians, Business Owners"
+  },
+  "typography": {
+    "font_family": {
+      "heading": "Barlow Condensed, sans-serif",
+      "body": "Public Sans, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "scale": {
+      "h1": "text-5xl md:text-7xl font-bold uppercase tracking-tight leading-none",
+      "h2": "text-4xl md:text-5xl font-bold uppercase tracking-tight",
+      "h3": "text-2xl md:text-3xl font-semibold uppercase tracking-normal",
+      "body": "text-base md:text-lg leading-relaxed font-normal",
+      "small": "text-sm font-medium tracking-wide uppercase text-muted-foreground",
+      "mono": "text-xs md:text-sm font-mono tracking-wider"
+    },
+    "imports": [
+      "@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Public+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');"
+    ]
+  },
+  "colors": {
+    "palette": {
+      "primary": "#2563EB",
+      "primary_foreground": "#FFFFFF",
+      "secondary": "#FACC15",
+      "secondary_foreground": "#000000",
+      "accent": "#FACC15",
+      "accent_foreground": "#000000",
+      "background": "#FAFAFA",
+      "foreground": "#09090B",
+      "card": "#FFFFFF",
+      "card_foreground": "#09090B",
+      "muted": "#F4F4F5",
+      "muted_foreground": "#71717A",
+      "border": "#E4E4E7",
+      "input": "#E4E4E7",
+      "ring": "#2563EB",
+      "destructive": "#EF4444",
+      "chart_1": "#2563EB",
+      "chart_2": "#FACC15",
+      "chart_3": "#10B981",
+      "chart_4": "#F97316",
+      "chart_5": "#8B5CF6"
+    },
+    "usage": {
+      "primary": "Main actions, active states, branding elements",
+      "secondary": "Highlights, 'Spark' accents, attention grabbers (use sparingly)",
+      "background": "Main page background - clean industrial look",
+      "card": "Surface for content blocks, panels",
+      "text_main": "Headings, body text",
+      "text_muted": "Secondary text, labels, technical specs"
+    },
+    "gradients": {
+      "hero_glow": "radial-gradient(circle at 50% 50%, rgba(37, 99, 235, 0.15), rgba(250, 250, 250, 0))",
+      "dark_panel": "linear-gradient(180deg, #18181B 0%, #09090B 100%)"
+    }
+  },
+  "layout": {
+    "spacing": {
+      "container_padding": "p-6 md:p-12 lg:p-20",
+      "section_gap": "gap-12 md:gap-24",
+      "item_gap": "gap-4 md:gap-8"
+    },
+    "grids": {
+      "bento_hero": "grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 auto-rows-[minmax(180px,auto)]",
+      "features": "grid grid-cols-1 md:grid-cols-3 gap-8",
+      "dashboard": "grid grid-cols-1 md:grid-cols-4 gap-6"
+    },
+    "containers": {
+      "max_width": "max-w-7xl mx-auto",
+      "narrow": "max-w-3xl mx-auto"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm font-bold uppercase tracking-wider px-8 py-4 shadow-sm transition-all active:translate-y-0.5",
+      "secondary": "bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-sm font-bold uppercase tracking-wider px-8 py-4 shadow-sm border border-secondary transition-all active:translate-y-0.5",
+      "outline": "bg-transparent border-2 border-primary text-primary hover:bg-primary/5 rounded-sm font-bold uppercase tracking-wider px-8 py-4 transition-all"
+    },
+    "cards": {
+      "style": "bg-card border border-border/60 rounded-sm shadow-[0_2px_10px_-2px_rgba(0,0,0,0.05)] p-6 md:p-8 relative overflow-hidden group hover:border-primary/30 transition-colors",
+      "technical_decor": "Before/After pseudo-elements to create corner brackets or technical markings"
+    },
+    "inputs": {
+      "style": "bg-background border-b-2 border-border focus:border-primary rounded-none px-0 py-3 text-lg outline-none transition-colors placeholder:text-muted-foreground/50",
+      "label": "text-xs font-mono uppercase text-muted-foreground mb-1 block tracking-wider"
+    },
+    "chatbot_widget": {
+      "container": "fixed bottom-6 right-6 w-[380px] h-[600px] bg-zinc-950 border border-zinc-800 rounded-lg shadow-2xl overflow-hidden flex flex-col z-50",
+      "header": "bg-primary p-4 flex items-center justify-between text-white font-bold uppercase tracking-wide",
+      "messages_area": "flex-1 overflow-y-auto p-4 bg-zinc-900/50 space-y-4",
+      "input_area": "p-4 bg-zinc-950 border-t border-zinc-800",
+      "bubble_user": "bg-primary text-white rounded-tr-sm rounded-tl-lg rounded-bl-lg rounded-br-lg p-3 max-w-[85%] self-end text-sm",
+      "bubble_bot": "bg-zinc-800 text-zinc-100 rounded-tl-sm rounded-tr-lg rounded-br-lg rounded-bl-lg p-3 max-w-[85%] self-start text-sm border-l-2 border-secondary"
+    }
+  },
+  "visual_enhancers": {
+    "texture": "bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03]",
+    "borders": "1px solid #E4E4E7",
+    "shadows": "shadow-lg shadow-blue-900/5",
+    "corner_radius": "rounded-sm (Keep it technical and sharp)"
+  },
+  "motion": {
+    "hover": "hover:-translate-y-1 transition-transform duration-200 ease-out",
+    "click": "active:scale-[0.98] transition-transform duration-75",
+    "entrance": "animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out"
+  },
+  "images": {
+    "hero_bg": {
+        "url": "https://images.pexels.com/photos/27928762/pexels-photo-27928762.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "alt": "Electrician working on panel",
+        "usage": "Hero section background with heavy overlay or side image in Bento grid"
+    },
+    "feature_1": {
+        "url": "https://images.unsplash.com/photo-1737622088520-895463a1a06f?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Modern Australian Home",
+        "usage": "Feature card for 'Residential Services'"
+    },
+    "testimonial": {
+        "url": "https://images.unsplash.com/photo-1758523419091-b48deb56d7b9?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "alt": "Happy Homeowners",
+        "usage": "Testimonials section"
+    },
+    "admin_dashboard_bg": {
+        "url": "https://images.pexels.com/photos/9679179/pexels-photo-9679179.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "alt": "Technical background",
+        "usage": "Login screen or subtle background for dashboard"
+    }
+  },
+  "instructions_to_main_agent": {
+    "1": "Use 'Barlow Condensed' for ALL headings. It is the signature look.",
+    "2": "The Chatbot Widget must look like a TOOL, not a toy. Use dark mode for the widget itself even on the light landing page.",
+    "3": "Use 'Volt Blue' (#2563EB) for primary actions, but use 'High Voltage Yellow' (#FACC15) for 'Spark' moments (icons, special highlights).",
+    "4": "Landing Page Layout: Use the 'Bento Grid' style provided in the layout section. Do not just stack sections vertically.",
+    "5": "Forms: Use the 'Technical Input' style (thick bottom border, no background) to feel like filling out a work order.",
+    "6": "Dashboard: Keep it dense and data-heavy. Use the 'High Density Grid' logic.",
+    "7": "Use 'lucide-react' for icons. Pick 'industrial' icons (zap, activity, settings, wrench, clipboard).",
+    "8": "Implement a 'Consultation Mode' toggle in the dashboard if possible (just a visual toggle).",
+    "9": "Ensure the 'Add Power Electrics' branding is clear: Reliable, Local, Tech-Savvy."
+  },
+  "UNIVERSAL_GUIDELINES": {
+    "design_philosophy": "Fusion over Imitation. Emotion First. Content is King.",
+    "anti_patterns": [
+      "No gradient text unless it's a very subtle metal sheen.",
+      "No rounded-full buttons (pill shape) - stick to rounded-sm or rounded-md for the industrial feel.",
+      "No generic 'Contact Us' layout. Make it a 'Service Request' terminal."
+    ],
+    "accessibility": "Ensure contrast ratios are met. The Yellow (#FACC15) must use BLACK text, never white.",
+    "component_reuse": "Customize shadcn components to match the 'Industrial' theme (square corners, thicker borders)."
+  }
+}
