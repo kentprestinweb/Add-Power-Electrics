@@ -80,6 +80,7 @@ QUICK_REPLIES = {
     "collect_job": ["Powerpoint installation", "Switchboard upgrade", "Lighting", "EV charger", "Other"],
     "lead_saved": ["Ask another question", "That's all, thanks"],
     "negative": ["Actually, yes book me in", "Ask another question"],
+    "services_menu": ["Powerpoints", "Switchboards", "Lighting", "EV Chargers", "Smoke Alarms", "Other"],
 }
 
 class ConversationState(BaseModel):
